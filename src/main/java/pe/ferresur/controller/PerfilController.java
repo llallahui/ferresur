@@ -1,0 +1,7 @@
+package pe.ferresur.controller;
+import org.springframework.security.core.Authentication; import org.springframework.security.crypto.password.PasswordEncoder; import org.springframework.stereotype.Controller; import org.springframework.ui.Model; import org.springframework.web.bind.annotation.*; import pe.ferresur.repository.UsuarioRepository;
+@Controller @RequestMapping("/perfil") public class PerfilController{
+ private final UsuarioRepository repo; private final PasswordEncoder encoder; public PerfilController(UsuarioRepository repo,PasswordEncoder encoder){this.repo=repo;this.encoder=encoder;}
+ @GetMapping public String perfil(Authentication auth,Model model){model.addAttribute("usuario",repo.findByUsernameIgnoreCase(auth.getName()).orElseThrow());return "perfil";}
+ @PostMapping("/password") public String password(Authentication auth,@RequestParam String actual,@RequestParam String nueva,@RequestParam String confirm,Model model){var u=repo.findByUsernameIgnoreCase(auth.getName()).orElseThrow(); if(!encoder.matches(actual,u.getPassword())){model.addAttribute("error","La contraseña actual no es correcta.");return "perfil";} if(nueva.length()<6||!nueva.equals(confirm)){model.addAttribute("error","La nueva contraseña debe tener al menos 6 caracteres y coincidir con su confirmación.");return "perfil";}u.setPassword(encoder.encode(nueva));repo.save(u);model.addAttribute("ok","Contraseña actualizada correctamente.");return "perfil";}
+}

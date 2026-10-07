@@ -1,0 +1,2 @@
+-- Los productos NO se cargan por defecto.
+-- Para una demostración rápida puede establecer FERRESUR_SEED_PRODUCTS=true antes de iniciar.

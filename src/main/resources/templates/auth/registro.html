@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Crear cuenta · FerreSur</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="login-page">
+<section class="login-left">
+    <div class="circle c1"></div><div class="circle c2"></div><div class="circle c3"></div>
+    <div class="login-logo">🔧</div>
+    <h1>FerreSur</h1>
+    <p class="subtitle">Sistema de Gestión</p>
+    <p>Registra una cuenta y accede a las funciones<br>según el rol seleccionado.</p>
+    <div class="feature-grid">
+        <span>👤 &nbsp; Perfil Administrador</span>
+        <span>🧾 &nbsp; Perfil Vendedor</span>
+        <span>🔐 &nbsp; Contraseña segura</span>
+        <span>✅ &nbsp; Validación de datos</span>
+    </div>
+</section>
+
+<section class="login-right">
+    <div class="login-card">
+        <h2>Crear cuenta</h2>
+        <p>Completa tus datos para registrarte.</p>
+
+        <form th:action="@{/registro}" th:object="${usuario}" method="post" id="registerForm" novalidate>
+            <label for="nombreCompleto">Nombre completo</label>
+            <div class="input">
+                <span>♙</span>
+                <input id="nombreCompleto" th:field="*{nombreCompleto}" required placeholder="Ej. Juan Pérez" autocomplete="name">
+            </div>
+            <div class="field-error" th:errors="*{nombreCompleto}"></div>
+
+            <label for="usernameRegistro">Usuario</label>
+            <div class="input">
+                <span>@</span>
+                <input id="usernameRegistro" th:field="*{username}" required placeholder="Ej. jperez" autocomplete="username">
+            </div>
+            <div class="field-error" th:errors="*{username}"></div>
+
+            <label for="passwordRegistro">Contraseña</label>
+            <div class="input password-input">
+                <span>🔒</span>
+                <input id="passwordRegistro" type="password" th:field="*{password}" required minlength="6" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+                <button type="button" class="password-toggle" data-toggle-password="passwordRegistro">◉</button>
+            </div>
+            <div class="field-error" th:errors="*{password}"></div>
+
+            <label for="passwordConfirm">Confirmar contraseña</label>
+            <div class="input password-input">
+                <span>🔒</span>
+                <input id="passwordConfirm" type="password" th:field="*{passwordConfirm}" required minlength="6" placeholder="Repite la contraseña" autocomplete="new-password">
+                <button type="button" class="password-toggle" data-toggle-password="passwordConfirm">◉</button>
+            </div>
+            <div id="passwordMatch" class="field-error" th:errors="*{passwordConfirm}"></div>
+
+            <label for="rolRegistro">Rol</label>
+            <div class="input select-wrap">
+                <span>♙</span>
+                <select id="rolRegistro" th:field="*{rol}" required>
+                    <option value="">Selecciona un rol</option>
+                    <option th:each="r : ${roles}" th:value="${r.name()}" th:text="${r.nombre}">Vendedor</option>
+                </select>
+            </div>
+            <div class="field-error" th:errors="*{rol}"></div>
+            <small class="help">Selecciona Administrador o Vendedor. El sistema aplicará los permisos correspondientes al iniciar sesión.</small>
+
+            <button class="btn primary full" type="submit">Crear cuenta</button>
+        </form>
+
+        <p class="register-link">¿Ya tienes cuenta? <a th:href="@{/login}">Volver al inicio de sesión</a></p>
+    </div>
+</section>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

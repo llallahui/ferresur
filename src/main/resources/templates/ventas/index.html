@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ventas · FerreSur</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<body>
+<div class="app">
+    <div th:with="active='ventas'"><div th:replace="~{fragments/header :: sidebar}"></div></div>
+    <main class="main">
+        <div th:with="stockBajoCount=${stockBajoCount}"><div th:replace="~{fragments/header :: topbar}"></div></div>
+        <section class="content">
+            <div class="page-head"><div><h1>Registro de Ventas</h1><p th:text="${ventas.size()} + ' ventas registradas'">6 ventas registradas</p></div><a class="btn primary" th:href="@{/ventas/nueva}">＋ Nueva Venta</a></div>
+            <div class="stats four">
+                <div class="stat"><span class="ico orange">$</span><b th:text="'S/ ' + ${#numbers.formatDecimal(totalVendido,1,2)}">S/ 0.00</b><label>Total Vendido</label><small>Ventas completadas</small></div>
+                <div class="stat"><span class="ico blue">🛒</span><b th:text="${completadas}">0</b><label>N° Ventas</label><small>Completadas</small></div>
+                <div class="stat"><span class="ico red">⊘</span><b th:text="${anuladas}">0</b><label>Anuladas</label><small>Operaciones anuladas</small></div>
+                <div class="stat"><span class="ico green">↗</span><b th:text="'S/ ' + ${#numbers.formatDecimal(promedio,1,2)}">S/ 0.00</b><label>Venta Promedio</label><small>Por venta completada</small></div>
+            </div>
+            <div class="searchbar"><div class="input"><span>⌕</span><input id="tableSearch" placeholder="Buscar por N° venta, vendedor o fecha..."></div></div>
+            <div class="table-card"><table id="ventasTable"><thead><tr><th>N° VENTA</th><th>FECHA / HORA</th><th>VENDEDOR</th><th>PRODUCTOS</th><th>TOTAL</th><th>ESTADO</th><th>ACCIONES</th></tr></thead>
+            <tbody>
+            <tr th:each="v : ${ventas}">
+                <td><code th:text="'#' + ${v.numero}">#0001</code></td>
+                <td><b th:text="${#temporals.format(v.fecha,'yyyy-MM-dd')}">2026-04-28</b><small th:text="${#temporals.format(v.fecha,'HH:mm')}">09:15</small></td>
+                <td th:text="${v.vendedor != null ? v.vendedor.nombreCompleto : 'Sin vendedor'}">Carlos Mendoza</td>
+                <td th:text="${v.detalles.size()} + ' ítem(s)'">2 ítem(s)</td>
+                <td><strong th:text="'S/ ' + ${#numbers.formatDecimal(v.total,1,2)}">S/ 63.00</strong></td>
+                <td><span class="status" th:classappend="${v.estado.name() == 'ANULADA'} ? ' danger' : ''" th:text="${v.estado.name() == 'ANULADA' ? 'Anulada' : 'Completada'}">Completada</span></td>
+                <td class="actions"><a title="Ver detalle" th:href="@{/ventas/{id}(id=${v.id})}">◉</a><form th:if="${v.estado.name() != 'ANULADA'}" th:action="@{/ventas/{id}/anular(id=${v.id})}" method="post"><button type="submit" title="Anular" onclick="return confirm('¿Anular esta venta? El stock será devuelto al inventario.')">⊘</button></form></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(ventas)}"><td colspan="7"><div class="empty">No hay ventas registradas.</div></td></tr>
+            </tbody></table></div>
+        </section>
+    </main>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

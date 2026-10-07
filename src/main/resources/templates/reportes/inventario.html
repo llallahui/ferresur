@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Inventario · FerreSur</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<body>
+<div class="app">
+    <div th:with="active='reportes',stockBajoCount=${stockBajo.size()}"><div th:replace="~{fragments/header :: sidebar}"></div></div>
+    <main class="main">
+        <div th:with="stockBajoCount=${stockBajo.size()}"><div th:replace="~{fragments/header :: topbar}"></div></div>
+        <section class="content">
+            <div class="page-head"><div><h1>Reporte de Inventario</h1><p>Existencias, valor del inventario y alertas.</p></div></div>
+            <div class="tabs"><a th:href="@{/reportes}">Reporte de Ventas</a><a class="selected" th:href="@{/reportes/inventario}">Reporte de Inventario</a></div>
+            <div class="stats four"><div class="stat"><span class="ico orange">⬡</span><b th:text="${productos.size()}">12</b><label>Productos</label><small>Activos</small></div><div class="stat"><span class="ico blue">#</span><b th:text="${totalUnidades}">0</b><label>Unidades en stock</label><small>Existencias actuales</small></div><div class="stat"><span class="ico red">⚠</span><b th:text="${stockBajo.size()}">2</b><label>Stock bajo</label><small>Requieren reposición</small></div><div class="stat"><span class="ico green">$</span><b th:text="'S/ ' + ${#numbers.formatDecimal(valorInventario,1,2)}">S/ 0.00</b><label>Valor del inventario</label><small>Stock × precio</small></div></div>
+            <div class="panel"><div class="panel-head"><h3>Inventario actual</h3><span class="panel-subtitle">Listado de productos disponibles</span></div><div class="table-card inner"><table><thead><tr><th>CÓDIGO</th><th>PRODUCTO</th><th>CATEGORÍA</th><th>PRECIO</th><th>STOCK</th><th>MÍNIMO</th><th>VALOR STOCK</th><th>ESTADO</th></tr></thead><tbody><tr th:each="p : ${productos}"><td><code th:text="${p.codigo}">FER-001</code></td><td><b th:text="${p.nombre}">Martillo</b></td><td th:text="${p.categoria != null ? p.categoria.nombre : 'Sin categoría'}">Herramientas</td><td th:text="'S/ ' + ${#numbers.formatDecimal(p.precio,1,2)}">S/ 25.50</td><td th:classappend="${p.stockBajo} ? ' stock-low' : ''" th:text="${p.stock}">45</td><td th:text="${p.stockMinimo}">5</td><td th:text="'S/ ' + ${#numbers.formatDecimal(p.valorStock,1,2)}">S/ 1147.50</td><td><span class="status" th:classappend="${p.stockBajo} ? ' danger' : ''" th:text="${p.stockBajo ? 'Stock bajo' : 'Disponible'}">Disponible</span></td></tr><tr th:if="${#lists.isEmpty(productos)}"><td colspan="8"><div class="empty">No hay productos activos.</div></td></tr></tbody></table></div></div></div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

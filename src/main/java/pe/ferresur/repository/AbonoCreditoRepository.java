@@ -1,0 +1,1 @@
+package pe.ferresur.repository; import org.springframework.data.jpa.repository.JpaRepository; import pe.ferresur.model.AbonoCredito; import java.util.List; public interface AbonoCreditoRepository extends JpaRepository<AbonoCredito,Long>{List<AbonoCredito> findByVentaIdOrderByFechaDesc(Long ventaId);}

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Usuarios · FerreSur</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<body>
+<div class="app">
+    <div th:with="active='usuarios'"><div th:replace="~{fragments/header :: sidebar}"></div></div>
+    <main class="main">
+        <div th:with="stockBajoCount=${stockBajoCount}"><div th:replace="~{fragments/header :: topbar}"></div></div>
+        <section class="content">
+            <div class="page-head"><div><h1>Gestión de Usuarios</h1><p th:text="${total} + ' usuarios registrados'">2 usuarios registrados</p></div><a class="btn primary" th:href="@{/usuarios/nuevo}">＋ Nuevo Usuario</a></div>
+            <div class="stats four"><div class="stat"><span class="ico orange">♙</span><b th:text="${total}">2</b><label>Total Usuarios</label><small>Registrados</small></div><div class="stat"><span class="ico purple">★</span><b class="purple" th:text="${admins}">1</b><label>Administradores</label><small>Acceso completo</small></div><div class="stat"><span class="ico blue">♙</span><b class="blue" th:text="${vendedores}">1</b><label>Vendedores</label><small>Operación de ventas</small></div><div class="stat"><span class="ico green">✓</span><b class="green-text" th:text="${activos}">2</b><label>Activos</label><small>Con acceso</small></div></div>
+            <div class="user-grid">
+                <div class="user-card" th:each="u : ${usuarios}">
+                    <div class="user-top"><div class="user-avatar" th:text="${u.nombreCompleto.substring(0,1).toUpperCase()}">A</div><div><h3 th:text="${u.nombreCompleto}">Admin FerreSur</h3><small th:text="'@' + ${u.username}">@admin</small></div><span class="status" th:classappend="${!u.activo} ? ' muted' : ''" th:text="${u.activo ? 'Activo' : 'Inactivo'}">Activo</span></div>
+                    <span class="role" th:classappend="${u.rol.name() == 'ADMINISTRADOR'} ? ' admin-role' : ''" th:text="${u.rol.nombre}">Administrador</span>
+                    <div class="user-actions"><a class="btn ghost" th:href="@{/usuarios/editar/{id}(id=${u.id})}">✎ Editar</a><form th:action="@{/usuarios/{id}/toggle(id=${u.id})}" method="post"><button class="btn" th:classappend="${u.activo} ? ' danger-btn' : ' success-btn'" type="submit" th:text="${u.activo ? 'Desactivar' : 'Activar'}">Desactivar</button></form></div>
+                </div>
+            </div>
+            <div class="panel permissions"><div class="panel-head"><h3>Permisos por Rol</h3></div><div class="permission-grid"><div><h3>🛡 Administrador</h3><p>✓ Gestión de productos y catálogo</p><p>✓ Registro y anulación de ventas</p><p>✓ Generación de reportes</p><p>✓ Gestión de usuarios</p><p>✓ Visualización de alertas y dashboard</p></div><div><h3>♙ Vendedor</h3><p>✓ Consulta de productos disponibles</p><p>✓ Registro de ventas</p><p>✓ Visualización del historial de ventas</p><p>✓ Consulta de stock en tiempo real</p></div></div></div>
+        </section>
+    </main>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

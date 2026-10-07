@@ -1,0 +1,1 @@
+package pe.ferresur.repository; import org.springframework.data.jpa.repository.JpaRepository; import pe.ferresur.model.SistemaConfig; import java.util.Optional; public interface SistemaConfigRepository extends JpaRepository<SistemaConfig,Long>{Optional<SistemaConfig> findByClave(String clave);}

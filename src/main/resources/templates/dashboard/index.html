@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Dashboard · FerreSur</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="app">
+    <div th:with="active='dashboard', stockBajoCount=${stockBajo}">
+        <div th:replace="~{fragments/header :: sidebar}"></div>
+    </div>
+
+    <main class="main">
+        <div th:with="stockBajoCount=${stockBajo}">
+            <div th:replace="~{fragments/header :: topbar}"></div>
+        </div>
+
+        <section class="content">
+            <div class="page-head">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p>Resumen general del sistema · <span th:text="${fechaTexto}">Miércoles, 29 de Abril 2026</span></p>
+                </div>
+            </div>
+
+            <div class="low-alert" sec:authorize="hasRole('ADMIN')" th:if="${pagosPendientes > 0}"><span>🔔</span><div><b th:text="${pagosPendientes}+' pago(s) de vendedor pendiente(s)'">Pagos pendientes</b><small>Revisa las fechas de pago programadas.</small></div><a th:href="@{/sueldos}">Revisar →</a></div>
+            <div class="low-alert" th:if="${creditosVencidos > 0}"><span>🔔</span><div><b th:text="${creditosVencidos}+' crédito(s) vencido(s)'">Créditos vencidos</b><small>Revisa las cuentas pendientes de clientes.</small></div><a th:href="@{/clientes}">Revisar →</a></div>
+
+            <div class="low-alert" th:if="${stockBajo > 0}">
+                <span>⚠</span>
+                <div>
+                    <b th:text="${stockBajo + ' producto(s) con stock bajo'}">2 producto(s) con stock bajo</b>
+                    <small>Requieren reposición para mantener disponibilidad.</small>
+                </div>
+                <a th:href="@{/productos}">Ver productos →</a>
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <span class="ico orange">🛒</span>
+                    <b th:text="'S/ ' + ${#numbers.formatDecimal(ventasHoy,1,2)}">S/ 0.00</b>
+                    <label>Ventas de Hoy</label>
+                    <small>Transacciones registradas</small>
+                </div>
+                <div class="stat">
+                    <span class="ico blue">↗</span>
+                    <b th:text="'S/ ' + ${#numbers.formatDecimal(ventasMes,1,2)}">S/ 0.00</b>
+                    <label>Ventas del Mes</label>
+                    <small th:text="${mesTexto}">Septiembre 2026</small>
+                </div>
+                <div class="stat">
+                    <span class="ico green">⬡</span>
+                    <b th:text="${productosCount}">12</b>
+                    <label>Total Productos</label>
+                    <small>En catálogo</small>
+                </div>
+                <div class="stat">
+                    <span class="ico red">⚠</span>
+                    <b th:text="${stockBajo}">2</b>
+                    <label>Stock Bajo</label>
+                    <small>Requieren reposición</small>
+                </div>
+            </div>
+
+            <div class="result-banner" th:classappend="${resultadoMes.signum() < 0} ? ' loss' : ''"><div><b th:text="${resultadoMes.signum() >= 0 ? 'Resultado del mes: GANANCIA' : 'Resultado del mes: PÉRDIDA'}">Resultado</b><small>Utilidad bruta − gastos − sueldos pagados</small></div><strong th:text="'S/ '+${#numbers.formatDecimal(resultadoMes,1,2)}">S/ 0.00</strong></div>
+
+            <div class="dashboard-charts">
+                <div class="chart-card">
+                    <div class="chart-head">
+                        <div>
+                            <h2 th:text="'Ventas Mensuales ' + ${chartYear}">Ventas Mensuales 2026</h2>
+                            <p>Ingresos por ventas en soles</p>
+                        </div>
+                    </div>
+                    <div class="line-chart-wrap">
+                        <canvas id="monthlySalesChart"
+                                th:attr="data-labels=${monthlyLabelsJson},data-values=${monthlyValuesJson}"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card category-card">
+                    <div class="chart-head">
+                        <div>
+                            <h2>Categorías</h2>
+                            <p>Distribución de productos</p>
+                        </div>
+                    </div>
+                    <div class="donut-wrap">
+                        <div id="categoryChart"
+                             th:attr="data-labels=${categoryLabelsJson},data-values=${categoryValuesJson}"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div class="panel">
+                    <div class="panel-head">
+                        <h3>Ventas Recientes</h3>
+                        <a th:href="@{/ventas}">Ver todas →</a>
+                    </div>
+                    <div class="sale-row" th:each="v : ${recientes}">
+                        <span class="round-icon">🛒</span>
+                        <div>
+                            <b th:text="'Venta #' + ${v.numero}">Venta #0001</b>
+                            <small th:text="${#temporals.format(v.fecha,'dd/MM/yyyy HH:mm')} + ' · ' + ${v.vendedor != null ? v.vendedor.nombreCompleto : 'Sin vendedor'}">28/04/2026 09:15 · Carlos</small>
+                        </div>
+                        <strong th:text="'S/ ' + ${#numbers.formatDecimal(v.total,1,2)}">S/ 63.00</strong>
+                        <em th:classappend="${v.estado.name() == 'ANULADA'} ? ' cancelled' : ''"
+                            th:text="${v.estado.name() == 'ANULADA' ? 'anulada' : 'completada'}">completada</em>
+                    </div>
+                    <div class="empty" th:if="${#lists.isEmpty(recientes)}">Todavía no hay ventas registradas.</div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <h3>Alertas de Stock</h3>
+                        <a th:href="@{/productos}">Gestionar →</a>
+                    </div>
+                    <div class="stock-row" th:each="p : ${alertas}">
+                        <span class="stock-icon">⚠</span>
+                        <div>
+                            <b th:text="${p.nombre}">Pintura Látex Blanca 4L</b>
+                            <div class="bar"><i th:style="'width:' + ${p.stockPorcentaje} + '%'"></i></div>
+                        </div>
+                        <strong th:text="${p.stock + '/' + p.stockMinimo}">3/8</strong>
+                    </div>
+                    <div class="empty" th:if="${#lists.isEmpty(alertas)}">✓ No hay productos con stock bajo.</div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

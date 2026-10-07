@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Productos · FerreSur</title><link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="app">
+    <div th:with="active='productos'"><div th:replace="~{fragments/header :: sidebar}"></div></div>
+    <main class="main">
+        <div th:with="stockBajoCount=${stockBajoCount}"><div th:replace="~{fragments/header :: topbar}"></div></div>
+        <section class="content">
+            <div class="page-head">
+                <div><h1>Gestión de Productos</h1><p th:text="${#lists.size(productos)} + ' productos mostrados'">12 productos mostrados</p></div>
+                <a sec:authorize="hasRole('ADMIN')" class="btn primary" th:href="@{/productos/nuevo}">＋ Nuevo Producto</a>
+            </div>
+
+            <form class="searchbar" method="get" th:action="@{/productos}">
+                <div class="input"><span>⌕</span><input id="productTableSearch" name="q" th:value="${q}" placeholder="Buscar por nombre o código..."></div>
+                <select name="categoria" onchange="this.form.submit()">
+                    <option value="">Todas las categorías</option>
+                    <option th:each="c : ${categorias}" th:value="${c.id}" th:text="${c.nombre}" th:selected="${categoriaSeleccionada != null and categoriaSeleccionada == c.id}">Herramientas</option>
+                </select>
+                <button class="btn ghost" type="submit">Buscar</button>
+                <a class="btn ghost" th:href="@{/productos}">Limpiar</a>
+            </form>
+
+            <div class="table-card">
+                <table id="productsTable">
+                    <thead><tr><th>CÓDIGO</th><th>PRODUCTO</th><th>CATEGORÍA</th><th>PRECIO</th><th>STOCK</th><th>ESTADO</th><th>ACCIONES</th></tr></thead>
+                    <tbody>
+                    <tr th:each="p : ${productos}">
+                        <td><code th:text="${p.codigo}">FER-001</code></td>
+                        <td><b th:text="${p.nombre}">Martillo</b><small th:text="${p.descripcion}">Descripción...</small></td>
+                        <td><span class="tag" th:text="${p.categoria != null ? p.categoria.nombre : 'Sin categoría'}">Herramientas</span></td>
+                        <td><strong th:text="'S/ ' + ${#numbers.formatDecimal(p.precio,1,2)}">S/ 25.50</strong></td>
+                        <td><span th:classappend="${p.stockBajo} ? ' stock-low' : ''" th:text="${p.stock}">45</span></td>
+                        <td><span class="status" th:classappend="${p.stockBajo} ? ' danger' : ''" th:text="${p.stockBajo ? 'Stock bajo' : 'Disponible'}">Disponible</span></td>
+                        <td class="actions">
+                            <a sec:authorize="hasRole('ADMIN')" title="Editar" th:href="@{/productos/editar/{id}(id=${p.id})}">✎</a>
+                            <form sec:authorize="hasRole('ADMIN')" th:action="@{/productos/eliminar/{id}(id=${p.id})}" method="post">
+                                <button type="submit" title="Desactivar" onclick="return confirm('¿Desactivar este producto? No se eliminará del historial.')">♲</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(productos)}"><td colspan="7"><div class="empty">No se encontraron productos con los filtros seleccionados.</div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
